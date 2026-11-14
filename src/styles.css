@@ -1,0 +1,188 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-body: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+}
+
+:root {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 92%;
+  --card: 0 0% 7%;
+  --card-foreground: 0 0% 92%;
+  --popover: 0 0% 7%;
+  --popover-foreground: 0 0% 92%;
+  --primary: 142 95% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 10%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 9%;
+  --muted-foreground: 0 0% 64%;
+  --accent: 0 0% 14%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 16%;
+  --input: 0 0% 9%;
+  --ring: 142 95% 42%;
+  --radius: 0.5rem;
+  --sidebar-background: 0 0% 4%;
+  --sidebar-foreground: 0 0% 72%;
+  --sidebar-primary: 142 95% 42%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent-foreground: 0 0% 92%;
+  --sidebar-border: 0 0% 16%;
+}
+
+@layer base {
+  * { border-color: hsl(var(--border)); }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+  html { scroll-behavior: smooth; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .glass { background: hsl(var(--card) / 0.85); border: 1px solid hsl(var(--border)); }
+  .glow-primary { box-shadow: 0 0 15px hsl(var(--primary) / 0.25); }
+  .glow-text { text-shadow: 0 0 15px hsl(var(--primary) / 0.4); }
+  .gradient-primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+  .gradient-primary:hover {
+    background-color: hsl(var(--primary) / 0.9);
+  }
+  .gradient-text {
+    color: hsl(var(--foreground));
+  }
+  .surface-panel {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+  }
+  .card-3d { transform-style: preserve-3d; perspective: 800px; }
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .float { animation: float 6s ease-in-out infinite; }
+  .noise { position: relative; }
+  .noise::before { content: ''; position: absolute; inset: 0; opacity: 0.03; pointer-events: none; z-index: 1; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .glow-ring { position: relative; }
+  @media (pointer: fine) {
+    .glass { background: hsl(var(--card) / 0.7); backdrop-filter: blur(20px); }
+  }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+  /* Auth-specific styles */
+  .auth-input {
+    @apply w-full rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-all border border-border bg-[#121212];
+    @apply focus:ring-2 focus:ring-primary/40 focus:border-primary/60;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .auth-input:focus-visible {
+    @apply ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+  }
+
+  .auth-label {
+    @apply text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block;
+  }
+
+  .auth-button-primary {
+    @apply w-full h-11 font-bold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .auth-link {
+    @apply text-primary hover:underline font-semibold text-xs;
+  }
+
+  .auth-checkbox {
+    @apply accent-primary w-3.5 h-3.5 rounded border-border;
+    @apply focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0 focus-visible:ring-offset-background;
+  }
+
+  /* Autofill styling for dark inputs */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #121212 inset !important;
+    box-shadow: 0 0 0 1000px #121212 inset !important;
+    -webkit-text-fill-color: #e8e8e8 !important;
+    caret-color: #e8e8e8 !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  input:-webkit-autofill::placeholder {
+    color: #717171 !important;
+  }
+
+  /* Ensure placeholders are visible */
+  ::placeholder {
+    color: hsl(var(--muted-foreground) / 0.5);
+    opacity: 1;
+  }
+
+  :-ms-input-placeholder {
+    color: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  ::-ms-input-placeholder {
+    color: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  /* Focus visible for all interactive elements */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+  }
+
+  /* Remove outline for mouse users, keep for keyboard */
+  :focus:not(:focus-visible) {
+    outline: none;
+    ring: none;
+  }
+}

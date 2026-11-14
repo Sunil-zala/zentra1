@@ -1,0 +1,102 @@
+.tilted-grid-hero {
+  --tgh-accent: #3deba0;
+  --tgh-overlay: #050d0a;
+  --tgh-text: #ffffff;
+  --tgh-gap: 12px;
+  --tgh-radius: 16px;
+  --tgh-perspective: 1200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  perspective: var(--tgh-perspective);
+  transform-style: preserve-3d;
+  background: radial-gradient(ellipse at center, var(--tgh-overlay) 0%, transparent 70%);
+}
+
+.tgh-panel {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transition: none;
+  will-change: transform, opacity;
+  cursor: pointer;
+}
+
+.tgh-panel__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--tgh-radius);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.tgh-panel__media {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tgh-panel__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.6s ease;
+  filter: grayscale(var(--tgh-gray, 0)) brightness(var(--tgh-dim, 1));
+}
+
+.tgh-panel__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, var(--tgh-overlay) 100%);
+  opacity: var(--tgh-dim, 0.35);
+  pointer-events: none;
+}
+
+.tgh-panel__label {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tgh-panel__bar {
+  width: 48px;
+  height: 3px;
+  background: var(--tgh-accent);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+}
+
+.tgh-panel__text {
+  color: var(--tgh-text);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tgh-panel,
+  .tgh-panel__media img {
+    transition: none !important;
+  }
+}
