@@ -98,7 +98,6 @@ export default function ZentraHero({ onSignIn, onSignUp }: ZentraHeroProps) {
   const [loading, setLoading] = useState(true);
   const [navVisible, setNavVisible] = useState(false);
   const [wordmarkVisible, setWordmarkVisible] = useState(false);
-  const [linkrowVisible, setLinkrowVisible] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !containerRef.current) return;
@@ -410,7 +409,6 @@ export default function ZentraHero({ onSignIn, onSignUp }: ZentraHeroProps) {
       // Intro animations
       setTimeout(() => setWordmarkVisible(true), 150);
       setTimeout(() => setNavVisible(true), 700);
-      setTimeout(() => setLinkrowVisible(true), 850);
 
       animId = requestAnimationFrame(frame);
     })();
@@ -461,17 +459,6 @@ export default function ZentraHero({ onSignIn, onSignUp }: ZentraHeroProps) {
 
       <div className={`zentra-hero__wordmark ${wordmarkVisible ? 'visible' : ''}`}>
         zentra<span className="zentra-hero__accent-dot">.</span>
-      </div>
-
-      <div className={`zentra-hero__linkrow ${linkrowVisible ? 'visible' : ''}`}>
-        <span>New Releases</span>
-        <span>Trending</span>
-        <span>Charts</span>
-        <span>Playlists</span>
-        <span>Podcasts</span>
-        <span>Artists</span>
-        <span>Radio</span>
-        <span>Premium</span>
       </div>
 
       <div ref={containerRef} className="zentra-hero__canvas-wrap" />
