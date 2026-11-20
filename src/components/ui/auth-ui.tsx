@@ -409,8 +409,8 @@ export interface AuthUIProps {
 
 const defaultSignInContent = {
   image: {
-    src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200&auto=format&fit=crop&q=80",
-    alt: "A beautiful musical atmosphere for sign-in",
+    src: "/auth-bg.jpg",
+    alt: "Dark textured dunes atmosphere",
   },
   quote: {
     text: "Welcome Back! The music journey continues.",
@@ -420,8 +420,8 @@ const defaultSignInContent = {
 
 const defaultSignUpContent = {
   image: {
-    src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&auto=format&fit=crop&q=80",
-    alt: "A vibrant, modern concert space for new beginnings",
+    src: "/auth-bg.jpg",
+    alt: "Dark textured dunes atmosphere",
   },
   quote: {
     text: "Create an account. Discover, stream, and feel every beat.",
