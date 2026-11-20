@@ -26,7 +26,7 @@ const Favorites = () => {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/login');
+      navigate('/');
     }
   }, [user, authLoading, navigate]);
 
@@ -42,7 +42,7 @@ const Favorites = () => {
         <main className="container px-4 pt-6 space-y-8">
           <div className="flex items-center gap-4">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/home')}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </motion.div>
@@ -101,7 +101,7 @@ const Favorites = () => {
               <h2 className="font-display text-xl font-semibold text-muted-foreground">No favorites yet</h2>
               <p className="text-sm text-muted-foreground/70 mt-1">Heart songs to add them here</p>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="mt-4">
-                <Button variant="outline" onClick={() => navigate('/')}>
+                <Button variant="outline" onClick={() => navigate('/home')}>
                   Discover Music
                 </Button>
               </motion.div>

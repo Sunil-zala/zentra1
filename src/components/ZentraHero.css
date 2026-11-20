@@ -1,0 +1,241 @@
+/* ─── Zentra 3D Hero — layout & intro animations ─── */
+
+.zentra-hero {
+  position: fixed;
+  inset: 0;
+  background: #070707;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* ── Canvas ───────────────────────────────────────── */
+.zentra-hero__canvas-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+}
+.zentra-hero__canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* ── Nav ──────────────────────────────────────────── */
+.zentra-hero__nav {
+  position: fixed;
+  z-index: 5;
+  left: 4vw;
+  right: 4vw;
+  top: 3.2vh;
+  height: 4.4vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: max(11px, 0.78vw);
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-1.2vh);
+  transition: none;
+}
+.zentra-hero__nav.visible {
+  animation: heroNavIn 900ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.zentra-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6vw;
+}
+.zentra-hero__mark {
+  width: 2vw;
+  height: 2vw;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #35e37a, #1ed760 60%, #1aa34a);
+  box-shadow: 0 0 14px rgba(30, 215, 96, 0.55);
+}
+.zentra-hero__word {
+  font-family: 'Libre Franklin', 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: max(17px, 1.5vw);
+  letter-spacing: -0.02em;
+}
+
+.zentra-hero__nav-center {
+  display: flex;
+  gap: 2.1vw;
+}
+.zentra-hero__nav-center a {
+  color: #ffffff;
+  text-decoration: none;
+  opacity: 0.72;
+  transition: opacity 0.2s ease;
+}
+.zentra-hero__nav-center a:hover {
+  opacity: 1;
+}
+
+.zentra-hero__nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.4vw;
+}
+.zentra-hero__signin {
+  color: #ffffff;
+  text-decoration: none;
+  opacity: 0.85;
+  font-weight: 500;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+.zentra-hero__signin:hover {
+  opacity: 1;
+}
+.zentra-hero__pill {
+  background: #1ed760;
+  color: #06140b;
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: max(11px, 0.78vw);
+  border-radius: 999px;
+  padding: 0.65vw 1.3vw;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.zentra-hero__pill:hover {
+  transform: translateY(-1px);
+  background: #3be37c;
+}
+
+/* ── Wordmark ─────────────────────────────────────── */
+.zentra-hero__wordmark {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  text-align: center;
+  --fs: min(42vh, 26vw);
+  top: calc(46vh - (var(--fs) * 0.72));
+  font-family: 'Libre Franklin', 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: var(--fs);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(4vh);
+  user-select: none;
+  pointer-events: none;
+}
+.zentra-hero__wordmark.visible {
+  animation: heroWordmarkIn 1400ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.zentra-hero__accent-dot {
+  color: #1ed760;
+}
+
+/* ── Link row ─────────────────────────────────────── */
+.zentra-hero__linkrow {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: 51.5vh;
+  display: flex;
+  justify-content: center;
+  gap: 2vw;
+  flex-wrap: wrap;
+  font-size: max(10px, 0.74vw);
+  font-weight: 500;
+  color: #b3b3b3;
+  opacity: 0;
+  transform: translateY(1.2vh);
+  padding: 0 4vw;
+  pointer-events: none;
+}
+.zentra-hero__linkrow.visible {
+  animation: heroLinkrowIn 900ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.zentra-hero__linkrow span {
+  white-space: nowrap;
+}
+
+/* ── Loading overlay ──────────────────────────────── */
+.zentra-hero__loading {
+  position: fixed;
+  z-index: 6;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b3b3b3;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  background: #070707;
+  transition: opacity 0.5s ease;
+}
+.zentra-hero__loading.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Keyframes ────────────────────────────────────── */
+@keyframes heroWordmarkIn {
+  from {
+    opacity: 0;
+    transform: translateY(4vh);
+    filter: blur(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+@keyframes heroNavIn {
+  from {
+    opacity: 0;
+    transform: translateY(-1.2vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes heroLinkrowIn {
+  from {
+    opacity: 0;
+    transform: translateY(1.2vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Mobile ───────────────────────────────────────── */
+@media (max-width: 760px) {
+  .zentra-hero__nav {
+    left: 5vw;
+    right: 5vw;
+    top: 2.5vh;
+  }
+  .zentra-hero__nav-center {
+    display: none;
+  }
+  .zentra-hero__wordmark {
+    --fs: 34vw;
+    top: 13vh;
+  }
+  .zentra-hero__linkrow {
+    top: 35vh;
+    gap: 3vw;
+  }
+}

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, renderHook, act } from "@testing-library/react";
 import user from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 
@@ -92,6 +92,7 @@ describe("useAuth", () => {
     expect(screen.getByTestId("has-session").textContent).toBe("false");
     expect(localStorage.getItem("zentra-mock-user")).toBeNull();
     expect(sessionStorage.getItem("zentra-mock-user")).toBeNull();
+    expect(sessionStorage.getItem("zentra-mock-password-hash")).toBeNull();
   });
 
   it("restores a persisted session on reload (remember=true)", async () => {
@@ -125,5 +126,50 @@ describe("useAuth", () => {
     await user.click(screen.getByRole("button", { name: "signout" }));
     expect(screen.getByTestId("user-email").textContent).toBe("");
     spy.mockRestore();
+  });
+
+  it("registerCredentials persists the account to localStorage without the plaintext password", () => {
+    const { result, unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    act(() => result.current.registerCredentials("a@b.com", "password123", "u-9"));
+    const accounts = localStorage.getItem("zentra-mock-accounts");
+    expect(accounts).toBeTruthy();
+    expect(accounts).toContain("a@b.com");
+    // plaintext is never persisted
+    expect(accounts).not.toContain("password123");
+    unmount();
+  });
+
+  it("verifyCredentials checks the password against the registry", () => {
+    const { result, unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    act(() => result.current.registerCredentials("a@b.com", "password123", "u-9"));
+    const wrong = result.current.verifyCredentials("a@b.com", "wrongpass");
+    expect(wrong.error).toBe("Wrong email or password.");
+    expect(wrong.user).toBeNull();
+    const right = result.current.verifyCredentials("a@b.com", "password123");
+    expect(right.error).toBeNull();
+    expect(right.user?.email).toBe("a@b.com");
+    unmount();
+  });
+
+  it("the account survives sign-out, so logging back in works (regression)", async () => {
+    const { result, unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    act(() => result.current.registerCredentials("me@example.com", "password123", "u-1"));
+    act(() => result.current.signIn({ id: "u-1", email: "me@example.com" } as any, { user: { id: "u-1" } } as any, false));
+    await act(async () => {
+      await result.current.signOut();
+    });
+
+    // Account still registered after sign-out...
+    expect(result.current.isEmailRegistered("me@example.com")).toBe(true);
+    // ...and the correct password logs back in, the wrong one does not.
+    expect(result.current.verifyCredentials("me@example.com", "password123").error).toBeNull();
+    expect(result.current.verifyCredentials("me@example.com", "wrongpass").error).toBe("Wrong email or password.");
+    unmount();
+  });
+
+  it("isEmailRegistered is false for an unknown email", () => {
+    const { result, unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    expect(result.current.isEmailRegistered("nobody@b.com")).toBe(false);
+    unmount();
   });
 });

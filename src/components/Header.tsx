@@ -25,7 +25,7 @@ const Header = () => {
       <div className="container flex items-center justify-between h-16 px-4">
         <div
           className="flex items-center gap-2 cursor-pointer"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
         >
           <span className="font-black text-xl tracking-[0.08em] text-foreground">
             ZENTRA

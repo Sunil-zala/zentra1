@@ -27,7 +27,7 @@ type SignupForm = z.infer<typeof signupSchema>;
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { signIn, isEmailRegistered } = useAuth();
+  const { signIn, isEmailRegistered, registerCredentials } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -77,12 +77,17 @@ export default function Signup() {
       };
       const mockSession = { user: mockUser };
 
+      // Register the account persistently (localStorage) so it survives
+      // sign-out. Without this the account only existed as the active session,
+      // which logging out deleted — so signing back in always failed.
+      registerCredentials(data.email, data.password, mockUser.id);
+
       // Update auth context state immediately AND persist to sessionStorage
       signIn(mockUser, mockSession, false);
 
       toast.success('Account created! Welcome to Zentra');
       // Auto-login: go straight to home instead of making user log in again
-      navigate('/');
+      navigate('/home');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Can't reach the server. Check your connection and try again.";
       console.error('Signup failed:', err);

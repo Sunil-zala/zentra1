@@ -9,18 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NotFoundRouteImport } from './routes/not-found'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
-import { Route as ProtectedIndexRouteImport } from './routes/_protected.index'
 import { Route as ProtectedFavoritesRouteImport } from './routes/_protected.favorites'
+import { Route as ProtectedHomeRouteImport } from './routes/_protected.home'
 import { Route as ProtectedLibraryRouteImport } from './routes/_protected.library'
 import { Route as ProtectedProfileRouteImport } from './routes/_protected.profile'
 import { Route as ProtectedSearchRouteImport } from './routes/_protected.search'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
   getParentRoute: () => rootRouteImport,
@@ -50,14 +56,14 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ProtectedRoute,
-} as any)
 const ProtectedFavoritesRoute = ProtectedFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedHomeRoute = ProtectedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedLibraryRoute = ProtectedLibraryRouteImport.update({
@@ -77,31 +83,34 @@ const ProtectedSearchRoute = ProtectedSearchRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof ProtectedIndexRoute
+  '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/not-found': typeof NotFoundRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/favorites': typeof ProtectedFavoritesRoute
+  '/home': typeof ProtectedHomeRoute
   '/library': typeof ProtectedLibraryRoute
   '/profile': typeof ProtectedProfileRoute
   '/search': typeof ProtectedSearchRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/not-found': typeof NotFoundRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/favorites': typeof ProtectedFavoritesRoute
+  '/home': typeof ProtectedHomeRoute
   '/library': typeof ProtectedLibraryRoute
   '/profile': typeof ProtectedProfileRoute
   '/search': typeof ProtectedSearchRoute
-  '/': typeof ProtectedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -109,10 +118,10 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_protected/favorites': typeof ProtectedFavoritesRoute
+  '/_protected/home': typeof ProtectedHomeRoute
   '/_protected/library': typeof ProtectedLibraryRoute
   '/_protected/profile': typeof ProtectedProfileRoute
   '/_protected/search': typeof ProtectedSearchRoute
-  '/_protected/': typeof ProtectedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -124,23 +133,26 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/favorites'
+    | '/home'
     | '/library'
     | '/profile'
     | '/search'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/forgot-password'
     | '/login'
     | '/not-found'
     | '/reset-password'
     | '/signup'
     | '/favorites'
+    | '/home'
     | '/library'
     | '/profile'
     | '/search'
-    | '/'
   id:
     | '__root__'
+    | '/'
     | '/_protected'
     | '/forgot-password'
     | '/login'
@@ -148,13 +160,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_protected/favorites'
+    | '/_protected/home'
     | '/_protected/library'
     | '/_protected/profile'
     | '/_protected/search'
-    | '/_protected/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   ProtectedRoute: typeof ProtectedRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -165,6 +178,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_protected': {
       id: '/_protected'
       path: ''
@@ -207,18 +227,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected/': {
-      id: '/_protected/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof ProtectedIndexRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
     '/_protected/favorites': {
       id: '/_protected/favorites'
       path: '/favorites'
       fullPath: '/favorites'
       preLoaderRoute: typeof ProtectedFavoritesRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/home': {
+      id: '/_protected/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof ProtectedHomeRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/library': {
@@ -247,18 +267,18 @@ declare module '@tanstack/react-router' {
 
 interface ProtectedRouteChildren {
   ProtectedFavoritesRoute: typeof ProtectedFavoritesRoute
+  ProtectedHomeRoute: typeof ProtectedHomeRoute
   ProtectedLibraryRoute: typeof ProtectedLibraryRoute
   ProtectedProfileRoute: typeof ProtectedProfileRoute
   ProtectedSearchRoute: typeof ProtectedSearchRoute
-  ProtectedIndexRoute: typeof ProtectedIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedFavoritesRoute: ProtectedFavoritesRoute,
+  ProtectedHomeRoute: ProtectedHomeRoute,
   ProtectedLibraryRoute: ProtectedLibraryRoute,
   ProtectedProfileRoute: ProtectedProfileRoute,
   ProtectedSearchRoute: ProtectedSearchRoute,
-  ProtectedIndexRoute: ProtectedIndexRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
@@ -266,6 +286,7 @@ const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,

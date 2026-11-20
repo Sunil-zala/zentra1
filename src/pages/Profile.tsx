@@ -18,12 +18,12 @@ const Profile = () => {
     );
   }
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
 
   const handleSignOut = async () => {
     await signOut();
     toast.success('Signed out successfully');
-    navigate('/login');
+    navigate('/');
   };
 
   const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString(undefined, {

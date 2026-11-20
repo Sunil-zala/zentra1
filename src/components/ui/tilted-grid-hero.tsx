@@ -204,6 +204,14 @@ export function TiltedGridHero({
                       src={img.src}
                       alt={k === 0 ? (img.alt ?? "") : ""}
                       draggable={false}
+                      onError={(e) => {
+                        // Prevent broken image icon, replace with clean dark music gradient
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                        if (target.parentElement) {
+                          target.parentElement.style.background = 'linear-gradient(135deg, #18281e 0%, #0d1a12 50%, #070707 100%)';
+                        }
+                      }}
                       className="absolute top-0 max-w-none object-cover"
                       style={{
                         left: u(-k * share),

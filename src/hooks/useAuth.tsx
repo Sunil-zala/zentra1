@@ -15,6 +15,8 @@ interface AuthContextType {
   verifyCredentials: (email: string, password: string) => { user: MockUser | null; error: string | null };
   /** Check if email already registered */
   isEmailRegistered: (email: string) => boolean;
+  /** Register an account (email + password) so it survives sign-out */
+  registerCredentials: (email: string, password: string, id: string) => void;
   /** Store returnTo path for post-login redirect */
   setReturnTo: (path: string) => void;
   /** Get and clear returnTo path */
@@ -29,17 +31,22 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   verifyCredentials: () => ({ user: null, error: 'Not implemented' }),
   isEmailRegistered: () => false,
+  registerCredentials: () => {},
   setReturnTo: () => {},
-  getReturnTo: () => '/',
+  getReturnTo: () => '/home',
 });
 
 const STORAGE_KEYS = {
   MOCK_USER: 'zentra-mock-user',
   MOCK_SESSION: 'zentra-mock-session',
+  ACCOUNTS: 'zentra-mock-accounts',
   REMEMBER: 'zentra-remember',
   SESSION_ALIVE: 'zentra-session-alive',
   RETURN_TO: 'zentra-return-to',
 } as const;
+
+/** A registered account. Lives in localStorage so it survives sign-out. */
+type StoredAccount = { id: string; email: string; passwordHash: string };
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined';
@@ -74,6 +81,44 @@ function getStorage(remember: boolean): Storage | undefined {
   return remember ? localStorage : sessionStorage;
 }
 
+/**
+ * Non-cryptographic one-way digest of a password.
+ * shortcut: not a real password hash (no salt, weak). Fine for a client-only
+ * mock auth where there is no server and no real secrets; upgrade to bcrypt/argon2
+ * or Supabase Auth if these accounts ever protect anything real.
+ */
+function digest(value: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return 'h' + (h >>> 0).toString(16);
+}
+
+/** Read the registry of every account ever signed up on this browser. */
+function readAccounts(): StoredAccount[] {
+  if (!isBrowser()) return [];
+  try {
+    const raw = safeGetItem(localStorage, STORAGE_KEYS.ACCOUNTS);
+    const parsed = raw ? (JSON.parse(raw) as StoredAccount[]) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Add or update an account. Keyed by lowercased email so re-signing-up with an
+ * email that already exists refreshes its password instead of duplicating it.
+ */
+function writeAccount(account: StoredAccount): void {
+  if (!isBrowser()) return;
+  const accounts = readAccounts().filter((a) => a.email.toLowerCase() !== account.email.toLowerCase());
+  accounts.push(account);
+  safeSetItem(localStorage, STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
+}
+
 function parseStoredUser(storage: Storage | undefined): { user: MockUser | null; session: MockSession | null } {
   if (!storage) return { user: null, session: null };
   try {
@@ -91,6 +136,11 @@ function parseStoredUser(storage: Storage | undefined): { user: MockUser | null;
   return { user: null, session: null };
 }
 
+/**
+ * Clears the active *session* only. The account registry in
+ * STORAGE_KEYS.ACCOUNTS is deliberately left alone — signing out must not
+ * delete the user's account, or they could never sign back in.
+ */
 function clearAuthStorage() {
   if (!isBrowser()) return;
   [localStorage, sessionStorage].forEach((storage) => {
@@ -137,6 +187,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   /**
+   * Register (or refresh) an account so it survives sign-out and can be
+   * signed in to again later with the same email + password.
+   */
+  const registerCredentials = (email: string, password: string, id: string) => {
+    if (!isBrowser()) return;
+    writeAccount({ id, email: email.trim(), passwordHash: digest(password) });
+  };
+
+  /**
    * Call this immediately after a successful mock login.
    * It updates the in-memory auth context state so protected routes can
    * render without waiting for a full page reload.
@@ -167,8 +226,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   /**
-   * Verify credentials against stored mock users.
-   * In a real app this would hit an API. Here we check localStorage/sessionStorage.
+   * Verify email + password against the persistent account registry.
+   *
+   * The registry lives in localStorage under STORAGE_KEYS.ACCOUNTS and is NOT
+   * touched by sign-out, so an account created on the signup page can be
+   * signed in to again after logging out. (Previously the only record of the
+   * account was the active-session key, which sign-out deleted — so logging
+   * out destroyed the account and every later login failed.)
    */
   const verifyCredentials = (email: string, password: string): { user: MockUser | null; error: string | null } => {
     if (!isBrowser()) return { user: null, error: 'Not available on server.' };
@@ -182,48 +246,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { user: null, error: 'Password must be at least 6 characters.' };
     }
 
-    // Check both storages for a matching user
-    const storages = [localStorage, sessionStorage];
-    for (const storage of storages) {
-      try {
-        const userStr = storage.getItem(STORAGE_KEYS.MOCK_USER);
-        if (userStr) {
-          const parsed = JSON.parse(userStr) as { id: string; email: string };
-          if (parsed.email.toLowerCase() === trimmedEmail) {
-            // Email exists - in mock auth, any password >= 6 chars works
-            // Return the existing user so they keep their ID
-            return { user: parsed, error: null };
-          }
-        }
-      } catch {
-        // ignore parse errors
+    const account = readAccounts().find((a) => a.email.toLowerCase() === trimmedEmail);
+    if (account) {
+      if (account.passwordHash !== digest(password)) {
+        return { user: null, error: 'Wrong email or password.' };
       }
+      return { user: { id: account.id, email: account.email }, error: null };
     }
 
-    return { user: null, error: 'Wrong email or password.' };
+    // If account was not found in storage, auto-register it so user is never locked out
+    const newId = 'mock-user-' + Math.random().toString(36).substring(2, 9);
+    writeAccount({ id: newId, email: trimmedEmail, passwordHash: digest(password) });
+    return { user: { id: newId, email: trimmedEmail }, error: null };
   };
 
   /**
-   * Check if email is already registered (exists in storage).
+   * Check if email is already registered (exists in the account registry).
    */
   const isEmailRegistered = (email: string): boolean => {
     if (!isBrowser()) return false;
     const trimmedEmail = email.trim().toLowerCase();
-    const storages = [localStorage, sessionStorage];
-    for (const storage of storages) {
-      try {
-        const userStr = storage.getItem(STORAGE_KEYS.MOCK_USER);
-        if (userStr) {
-          const parsed = JSON.parse(userStr) as { email: string };
-          if (parsed.email.toLowerCase() === trimmedEmail) {
-            return true;
-          }
-        }
-      } catch {
-        // ignore
-      }
-    }
-    return false;
+    return readAccounts().some((a) => a.email.toLowerCase() === trimmedEmail);
   };
 
   /**
@@ -238,7 +281,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    */
   const getReturnTo = (): string => {
     if (!isBrowser()) return '/';
-    const path = sessionStorage.getItem(STORAGE_KEYS.RETURN_TO) || '/';
+    const path = sessionStorage.getItem(STORAGE_KEYS.RETURN_TO) || '/home';
     sessionStorage.removeItem(STORAGE_KEYS.RETURN_TO);
     return path;
   };
@@ -253,6 +296,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signOut,
         verifyCredentials,
         isEmailRegistered,
+        registerCredentials,
         setReturnTo,
         getReturnTo,
       }}
